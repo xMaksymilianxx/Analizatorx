@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRAWDZIWY System Analizy Typów - Bez Oszukiwania</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <h1 class="app-title">
+                        <i class="fas fa-brain"></i>
+                        PRAWDZIWY System Analizy
+                        <span class="version">REAL VERSION - NO FAKE DATA</span>
+                    </h1>
+                    <div class="header-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalMatches">0</span>
+                            <span class="stat-label">Mecze załadowane</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="accuracyRate">0.0%</span>
+                            <span class="stat-label">Skuteczność</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="archiveCount">0</span>
+                            <span class="stat-label">W archiwum</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="verifiedCount">0</span>
+                            <span class="stat-label">Zweryfikowane</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn active" data-tab="upload">
+                <i class="fas fa-upload"></i>
+                <span>Upload XLSX</span>
+            </button>
+            <button class="nav-btn" data-tab="analysis">
+                <i class="fas fa-brain"></i>
+                <span>Analiza</span>
+            </button>
+            <button class="nav-btn" data-tab="predictions">
+                <i class="fas fa-star"></i>
+                <span>Typy</span>
+            </button>
+            <button class="nav-btn" data-tab="archive">
+                <i class="fas fa-archive"></i>
+                <span>Archiwum</span>
+            </button>
+            <button class="nav-btn" data-tab="learning">
+                <i class="fas fa-chart-line"></i>
+                <span>Uczenie AI</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Upload Tab -->
+            <div class="tab-content active" id="tab-upload">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Upload Plików XLSX - Wszystkie Mecze</h2>
+                        <div class="upload-status">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="uploadStatus">Gotowy na prawdziwe dane</span>
+                        </div>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Wgraj Pliki Excel (.xlsx)</h3>
+                            <p>System parsuje WSZYSTKIE mecze z plików - bez limitów</p>
+                        </div>
+                        <div class="card__body">
+                            <div class="upload-zone" id="uploadZone">
+                                <i class="fas fa-file-excel fa-3x"></i>
+                                <h4>Przeciągnij pliki XLSX tutaj</h4>
+                                <p>Lub kliknij aby wybrać pliki</p>
+                                <input type="file" id="fileInput" accept=".xlsx,.xls" multiple>
+                                <button type="button" class="btn btn--primary" id="selectFilesBtn">
+                                    <i class="fas fa-folder-open"></i>
+                                    Wybierz Pliki Excel
+                                </button>
+                            </div>
+
+                            <div class="upload-actions">
+                                <button class="btn btn--outline" id="clearDataBtn">
+                                    <i class="fas fa-trash"></i>
+                                    Wyczyść Dane
+                                </button>
+                                <button class="btn btn--outline" id="importArchiveBtn">
+                                    <i class="fas fa-upload"></i>
+                                    Import Archiwum
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Processing Results -->
+                    <div class="card hidden" id="processingResults">
+                        <div class="card__header">
+                            <h3>Przetworzone Pliki</h3>
+                        </div>
+                        <div class="card__body">
+                            <div id="filesList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Matches Preview -->
+                    <div class="card hidden" id="matchesPreview">
+                        <div class="card__header">
+                            <h3>Podgląd Wszystkich Meczów</h3>
+                            <div class="preview-filters">
+                                <input type="text" class="form-control" id="searchMatches" placeholder="Szukaj drużyny...">
+                                <select class="form-control" id="leagueFilter">
+                                    <option value="">Wszystkie ligi</option>
+                                </select>
+                                <select class="form-control" id="dateFilter">
+                                    <option value="">Wszystkie daty</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card__body">
+                            <div class="matches-table-container">
+                                <table class="matches-table" id="matchesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Mecz</th>
+                                            <th>Liga</th>
+                                            <th>Kursy (1/X/2)</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="matchesTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="pagination" id="matchesPagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Tab -->
+            <div class="tab-content" id="tab-analysis">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Analiza Prawdziwych Meczów</h2>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Wybierz Datę do Analizy</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="analysis-controls">
+                                <div class="form-group">
+                                    <label class="form-label">Data meczów:</label>
+                                    <input type="date" class="form-control" id="analysisDate">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Min. pewność (%): <span id="minConfidenceDisplay">70</span></label>
+                                    <input type="range" class="form-control" id="minConfidenceSlider" min="50" max="95" value="70">
+                                </div>
+                            </div>
+                            
+                            <div class="quick-dates">
+                                <button class="btn btn--outline btn--sm" data-days="0">Dzisiaj</button>
+                                <button class="btn btn--outline btn--sm" data-days="1">Jutro</button>
+                                <button class="btn btn--outline btn--sm" data-days="2">Pojutrze</button>
+                            </div>
+                            
+                            <button class="btn btn--primary btn--full-width" id="startAnalysisBtn">
+                                <i class="fas fa-brain"></i>
+                                Analizuj Mecze z Wybranej Daty
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Progress -->
+                    <div class="card hidden" id="analysisProgress">
+                        <div class="card__header">
+                            <h3>Trwa Analiza...</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <div class="progress-text" id="progressText">Inicjalizacja...</div>
+                            </div>
+                            <div class="analysis-log" id="analysisLog"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Predictions Tab -->
+            <div class="tab-content" id="tab-predictions">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Najlepsze Typy</h2>
+                        <div class="prediction-controls">
+                            <select class="form-control" id="sortPredictions">
+                                <option value="confidence">Pewność</option>
+                                <option value="value">Value</option>
+                                <option value="odds">Kursy</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="predictions-container" id="predictionsContainer">
+                        <div class="no-predictions" id="noPredictions">
+                            <i class="fas fa-brain fa-3x"></i>
+                            <h3>Brak analiz do wyświetlenia</h3>
+                            <p>Przeprowadź analizę aby zobaczyć typy</p>
+                        </div>
+                        <div class="predictions-list" id="predictionsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archive Tab -->
+            <div class="tab-content" id="tab-archive">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Archiwum z Weryfikacją</h2>
+                        <div class="archive-actions">
+                            <button class="btn btn--outline btn--sm" id="verifyResultsBtn">
+                                <i class="fas fa-search"></i>
+                                Weryfikuj Wyniki
+                            </button>
+                            <button class="btn btn--outline btn--sm" id="exportArchiveBtn">
+                                <i class="fas fa-download"></i>
+                                Export JSON
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Archive Stats -->
+                    <div class="archive-stats">
+                        <div class="stat-card">
+                            <h4 id="totalArchived">0</h4>
+                            <p>Łącznie</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4 id="totalVerified">0</h4>
+                            <p>Zweryfikowane</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4 id="totalCorrect">0</h4>
+                            <p>Trafne</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4 id="overallAccuracy">0%</h4>
+                            <p>Skuteczność</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Historia Typów</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="archive-filters">
+                                <select class="form-control" id="statusFilter">
+                                    <option value="">Wszystkie</option>
+                                    <option value="pending">Oczekujące</option>
+                                    <option value="verified">Zweryfikowane</option>
+                                    <option value="correct">Trafne</option>
+                                    <option value="incorrect">Nietrafne</option>
+                                </select>
+                            </div>
+                            <div class="archive-list" id="archiveList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Tab -->
+            <div class="tab-content" id="tab-learning">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>System Uczenia AI</h2>
+                    </div>
+
+                    <div class="learning-stats">
+                        <div class="learning-card">
+                            <h3>Model Weights</h3>
+                            <div id="weightsDisplay"></div>
+                        </div>
+                        <div class="learning-card">
+                            <h3>Learning Progress</h3>
+                            <div class="progress-circle">
+                                <span id="learningProgress">0%</span>
+                            </div>
+                        </div>
+                        <div class="learning-card">
+                            <h3>Patterns Found</h3>
+                            <div id="patternsCount">0</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Accuracy Over Time</h3>
+                        </div>
+                        <div class="card__body">
+                            <div class="chart-container" style="position: relative; height: 400px;">
+                                <canvas id="learningChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__header">
+                            <h3>Success Patterns</h3>
+                        </div>
+                        <div class="card__body">
+                            <div id="successPatterns">Brak wzorców</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay hidden" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p id="loadingText">Przetwarzanie...</p>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Import Modal -->
+        <div class="modal hidden" id="importModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Import Archiwum</h3>
+                    <button class="modal-close" id="closeImportModal">×</button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" id="importFileInput" accept=".json">
+                    <p>Wybierz plik JSON z archiwum</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--outline" id="cancelImport">Anuluj</button>
+                    <button class="btn btn--primary" id="confirmImport">Importuj</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
